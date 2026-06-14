@@ -10,7 +10,7 @@ router.use(authenticateToken);
 // GET /api/groups/:id/balances
 router.get('/:id/balances', async (req: AuthRequest, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     // Fetch all group expenses with their exact participant calculations
     const expenses = await prisma.expense.findMany({

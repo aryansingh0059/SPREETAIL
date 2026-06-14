@@ -90,7 +90,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 // GET /api/groups/:id/members - List members
 router.get('/:id/members', async (req: AuthRequest, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const memberships = await prisma.groupMembership.findMany({
       where: { groupId: id },
@@ -109,7 +109,7 @@ router.get('/:id/members', async (req: AuthRequest, res: Response) => {
 // POST /api/groups/:id/members - Add or update a member's timeline
 router.post('/:id/members', async (req: AuthRequest, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const { email, joinDate, leaveDate, role } = req.body;
 
     if (!email || !joinDate) {
@@ -168,7 +168,7 @@ router.post('/:id/members', async (req: AuthRequest, res: Response) => {
 // GET /api/groups/:id/expenses - List expenses and settlements
 router.get('/:id/expenses', async (req: AuthRequest, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const expenses = await prisma.expense.findMany({
       where: { groupId: id },
@@ -204,7 +204,7 @@ router.get('/:id/expenses', async (req: AuthRequest, res: Response) => {
 // DELETE /api/groups/:id - Delete a group
 router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     await prisma.$transaction(async (tx) => {
       // 1. Delete Anomalies and ImportRows related to the group's ImportJobs

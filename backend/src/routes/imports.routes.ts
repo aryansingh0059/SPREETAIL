@@ -104,7 +104,7 @@ router.post('/upload', upload.single('file'), async (req: AuthRequest, res: Resp
 // GET /api/imports/:id/anomalies
 router.get('/:id/anomalies', async (req: AuthRequest, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     // Fetch all unresolved anomalies for the job, including the raw row data
     const anomalies = await prisma.anomaly.findMany({
@@ -128,7 +128,7 @@ router.get('/:id/anomalies', async (req: AuthRequest, res: Response) => {
 // GET /api/imports/:id/report
 router.get('/:id/report', async (req: AuthRequest, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     // Fetch all rows for the job, including their anomalies
     const rows = await prisma.importRow.findMany({
@@ -272,7 +272,7 @@ router.post('/:id/resolve-anomaly', async (req: AuthRequest, res: Response) => {
 // POST /api/imports/:id/commit
 router.post('/:id/commit', async (req: AuthRequest, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const job = await prisma.importJob.findUnique({
       where: { id },

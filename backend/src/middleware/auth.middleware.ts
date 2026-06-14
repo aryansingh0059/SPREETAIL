@@ -4,10 +4,8 @@ import jwt from 'jsonwebtoken';
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-for-dev';
 
 // Extend Express Request type to include the authenticated user
-export interface AuthRequest extends Request<any, any, any, any, any> {
-  user?: {
-    userId: string;
-  };
+export interface AuthRequest extends Request {
+  user?: { userId: string };
 }
 
 export const authenticateToken = (req: AuthRequest, res: Response, next: NextFunction) => {
