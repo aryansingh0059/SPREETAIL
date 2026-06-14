@@ -13,6 +13,21 @@ A modern, highly interactive web application designed to help groups manage shar
 - **Frontend**: React (Vite), TypeScript, Tailwind CSS, Lucide React Icons, React Router.
 - **Backend**: Node.js, Express, TypeScript, Prisma ORM, PostgreSQL.
 - **Auth**: JWT & bcrypt for secure authentication.
+- **Database Hosting**: Neon (Serverless PostgreSQL).
+- **Backend Hosting**: Render.
+- **Frontend Hosting**: Vercel.
+
+---
+
+## 🤖 AI Tools Used
+
+This project was built with the assistance of the following AI tools:
+
+| AI Tool | Role |
+|---|---|
+| **ChatGPT** (OpenAI) | Initial architecture planning, schema design, and debugging complex TypeScript errors |
+| **Claude** (Anthropic) | Code reviews, refactoring suggestions, and writing complex route logic |
+| **Antigravity** (Google DeepMind) | Primary agentic coding assistant — used throughout for implementation, file edits, deployment fixes, and git management |
 
 ---
 
@@ -72,13 +87,17 @@ Your app is now running at `http://localhost:5173`!
 
 ## 📦 Deployment Guide
 
-### Backend Deployment (Render / Heroku)
-1. Set the environment variables `DATABASE_URL` and `JWT_SECRET` in your hosting provider's dashboard.
-2. Build Command: `npm install && npx prisma generate && npx prisma migrate deploy && npm run build`
+### Backend Deployment (Render)
+1. Set the environment variables `DATABASE_URL` and `JWT_SECRET` in your Render service dashboard.
+2. Build Command: `npm install && npx prisma generate && npm run build`
 3. Start Command: `npm start`
 
-### Frontend Deployment (Vercel / Netlify)
-1. Ensure your backend is deployed and you have the live API URL.
-2. In `frontend/src/lib/api.ts`, update the `baseURL` to point to your production API.
+### Frontend Deployment (Vercel)
+1. Ensure your backend is deployed and you have the live API URL (e.g., `https://your-app.onrender.com`).
+2. In your Vercel project settings, add the environment variable:
+   ```
+   VITE_API_URL=https://your-backend.onrender.com
+   ```
 3. Build Command: `npm run build`
 4. Publish Directory: `dist`
+
