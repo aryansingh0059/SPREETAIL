@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-primary: #4f46e5;
+  --color-brand-secondary: #4338ca;
+  --color-brand-dark: #1f2937;
+  --color-brand-light: #f9fafb;
+  --color-brand-white: #ffffff;
+  --color-brand-border: #e5e7eb;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-brand-light);
+    color: var(--color-brand-dark);
+    font-family: 'Inter', sans-serif;
+  }
+}

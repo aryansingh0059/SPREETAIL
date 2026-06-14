@@ -1,0 +1,192 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String             @id @default(uuid())
+  email         String             @unique
+  passwordHash  String
+  name          String
+  createdAt     DateTime           @default(now())
+  
+  memberships   GroupMembership[]
+  expensesPaid  Expense[]          @relation("ExpensePayer")
+  expenseShares ExpenseParticipant[]
+  settlementsPaid Settlement[]     @relation("SettlementPayer")
+  settlementsRcv Settlement[]      @relation("SettlementReceiver")
+  aliases       UserAlias[]
+  auditLogs     AuditLog[]
+}
+
+model Group {
+  id               String            @id @default(uuid())
+  name             String
+  baseCurrencyCode String
+  createdAt        DateTime          @default(now())
+  
+  memberships      GroupMembership[]
+  expenses         Expense[]
+  settlements      Settlement[]
+  aliases          UserAlias[]
+  importJobs       ImportJob[]
+  baseCurrency     Currency          @relation(fields: [baseCurrencyCode], references: [code])
+}
+
+model GroupMembership {
+  id        String    @id @default(uuid())
+  groupId   String
+  userId    String
+  joinDate  DateTime  @db.Date
+  leaveDate DateTime? @db.Date
+  
+  group     Group     @relation(fields: [groupId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+}
+
+model UserAlias {
+  id           String @id @default(uuid())
+  groupId      String
+  aliasString  String
+  mappedUserId String
+  
+  group        Group  @relation(fields: [groupId], references: [id])
+  mappedUser   User   @relation(fields: [mappedUserId], references: [id])
+}
+
+model Currency {
+  code   String @id
+  symbol String
+  name   String
+  
+  groups Group[]
+  expensesOriginal Expense[] @relation("OriginalCurrency")
+  settlements Settlement[]
+}
+
+enum SplitType {
+  EQUAL
+  PERCENTAGE
+  SHARE
+  UNEQUAL
+}
+
+model Expense {
+  id                    String    @id @default(uuid())
+  groupId               String
+  paidById              String
+  amount                Decimal
+  originalAmount        Decimal
+  originalCurrencyCode  String
+  exchangeRateApplied   Decimal?
+  splitType             SplitType
+  date                  DateTime  @db.Date
+  description           String
+  notes                 String?
+  isRefund              Boolean   @default(false)
+  createdAt             DateTime  @default(now())
+  
+  group                 Group     @relation(fields: [groupId], references: [id])
+  paidBy                User      @relation("ExpensePayer", fields: [paidById], references: [id])
+  originalCurrency      Currency  @relation("OriginalCurrency", fields: [originalCurrencyCode], references: [code])
+  participants          ExpenseParticipant[]
+}
+
+model ExpenseParticipant {
+  id                   String  @id @default(uuid())
+  expenseId            String
+  userId               String
+  splitValue           Decimal?
+  calculatedOwedAmount Decimal
+  
+  expense              Expense @relation(fields: [expenseId], references: [id])
+  user                 User    @relation(fields: [userId], references: [id])
+}
+
+model Settlement {
+  id           String   @id @default(uuid())
+  groupId      String
+  paidById     String
+  paidToId     String
+  amount       Decimal
+  currencyCode String
+  date         DateTime @db.Date
+  createdAt    DateTime @default(now())
+  
+  group        Group    @relation(fields: [groupId], references: [id])
+  paidBy       User     @relation("SettlementPayer", fields: [paidById], references: [id])
+  paidTo       User     @relation("SettlementReceiver", fields: [paidToId], references: [id])
+  currency     Currency @relation(fields: [currencyCode], references: [code])
+}
+
+enum ImportJobStatus {
+  PENDING
+  REVIEW_REQUIRED
+  COMPLETED
+  FAILED
+}
+
+model ImportJob {
+  id        String          @id @default(uuid())
+  groupId   String
+  status    ImportJobStatus @default(PENDING)
+  createdBy String?
+  createdAt DateTime        @default(now())
+  
+  group     Group           @relation(fields: [groupId], references: [id])
+  rows      ImportRow[]
+}
+
+enum ImportRowStatus {
+  PENDING
+  ANOMALY_DETECTED
+  APPROVED
+  DISCARDED
+  IMPORTED
+}
+
+model ImportRow {
+  id          String          @id @default(uuid())
+  importJobId String
+  rowNumber   Int
+  rawData     Json
+  parsedData  Json?
+  status      ImportRowStatus @default(PENDING)
+  
+  job         ImportJob       @relation(fields: [importJobId], references: [id])
+  anomalies   Anomaly[]
+}
+
+enum AnomalySeverity {
+  WARNING
+  BLOCKING
+}
+
+model Anomaly {
+  id               String          @id @default(uuid())
+  importRowId      String
+  anomalyType      String
+  severity         AnomalySeverity
+  description      String
+  resolutionAction String?
+  resolvedById     String?
+  resolvedAt       DateTime?
+  
+  importRow        ImportRow       @relation(fields: [importRowId], references: [id])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String
+  action     String
+  entityType String
+  entityId   String
+  changes    Json
+  createdAt  DateTime @default(now())
+  
+  user       User     @relation(fields: [userId], references: [id])
+}
